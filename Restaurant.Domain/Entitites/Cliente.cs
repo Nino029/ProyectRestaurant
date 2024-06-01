@@ -1,7 +1,7 @@
 ﻿
 
 namespace Restaurant.Domain.Entitites;
-
+//a
 public partial class Cliente
 {
     public int IdCliente { get; set; }
