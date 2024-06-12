@@ -1,22 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
-using Restaurant.Infraestructure.Context;
 
-namespace Restaurant.Infraestructure.Repositories
+namespace Restaurant.Infraestructure.Repositories.Mock.Mesas
 {
-    public class MesaRepository : IMesaRepository
+    public class MesaRepositoryMock : IMesaRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly List<Mesa> _mesas;
 
-        public MesaRepository(ApplicationDbContext context)
+        public MesaRepositoryMock()
         {
-            _context = context;
+            _mesas = new List<Mesa>
+            {
+                new Mesa { IdMesa = 1, Capacidad = 4, Estado = "Disponible" },
+                new Mesa { IdMesa = 2, Capacidad = 6, Estado = "Ocupado" }
+            };
         }
 
         public async Task<IEnumerable<Mesa>> GetAllAsync()
         {
-            return await _context.Set<Mesa>().ToListAsync();
+            return await Task.Run(() => _mesas.ToList());
         }
 
         public async Task<Mesa> GetByIdAsync(int id)
@@ -26,7 +29,7 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var mesa = await _context.Set<Mesa>().FindAsync(id);
+            var mesa = _mesas.FirstOrDefault(m => m.IdMesa == id);
 
             if (mesa == null)
             {
@@ -43,8 +46,12 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentNullException(nameof(mesa), "La mesa no puede ser nula");
             }
 
-            await _context.Set<Mesa>().AddAsync(mesa);
-            await _context.SaveChangesAsync();
+            if (_mesas.Any(m => m.IdMesa == mesa.IdMesa))
+            {
+                throw new InvalidOperationException("Ya existe una mesa con el mismo Id.");
+            }
+
+            _mesas.Add(mesa);
         }
 
         public async Task UpdateAsync(Mesa mesa)
@@ -59,14 +66,14 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(mesa.IdMesa));
             }
 
-            var existingMesa = await _context.Set<Mesa>().FindAsync(mesa.IdMesa);
+            var existingMesa = _mesas.FirstOrDefault(m => m.IdMesa == mesa.IdMesa);
             if (existingMesa == null)
             {
                 throw new KeyNotFoundException("Mesa no encontrada");
             }
 
-            _context.Entry(existingMesa).CurrentValues.SetValues(mesa);
-            await _context.SaveChangesAsync();
+            existingMesa.Capacidad = mesa.Capacidad;
+            existingMesa.Estado = mesa.Estado;
         }
 
         public async Task DeleteAsync(int id)
@@ -76,14 +83,13 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var mesa = await _context.Set<Mesa>().FindAsync(id);
+            var mesa = _mesas.FirstOrDefault(m => m.IdMesa == id);
             if (mesa == null)
             {
                 throw new KeyNotFoundException("Mesa no encontrada");
             }
 
-            _context.Set<Mesa>().Remove(mesa);
-            await _context.SaveChangesAsync();
+            _mesas.Remove(mesa);
         }
     }
 }

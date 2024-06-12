@@ -1,23 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
-using Restaurant.Infraestructure.Context;
 
-
-namespace Restaurant.Infraestructure.Repositories
+namespace Restaurant.Infrastructure.Repositories.Mock
 {
-    public class ClienteRepository : IClienteRepository
+    public class ClienteRepositoryMock : IClienteRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly List<Cliente> _context;
 
-        public ClienteRepository(ApplicationDbContext context)
+        public ClienteRepositoryMock()
         {
-            _context = context;
+            _context = new List<Cliente>();
         }
 
         public async Task<IEnumerable<Cliente>> GetAllAsync()
         {
-            return await _context.Set<Cliente>().ToListAsync();
+            return _context.ToList();
         }
 
         public async Task<Cliente> GetByIdAsync(int id)
@@ -27,14 +25,14 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var cliente = await _context.Set<Cliente>().FindAsync(id);
+            var cliente = _context.FirstOrDefault(c => c.IdCliente == id);
 
             if (cliente == null)
             {
                 throw new KeyNotFoundException("Cliente no encontrado");
             }
 
-            return cliente;
+            return  cliente;
         }
 
         public async Task AddAsync(Cliente cliente)
@@ -49,8 +47,8 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El nombre del cliente es obligatorio", nameof(cliente.Nombre));
             }
 
-            await _context.Set<Cliente>().AddAsync(cliente);
-            await _context.SaveChangesAsync();
+            cliente.IdCliente = _context.Count > 0 ? _context.Max(c => c.IdCliente) + 1 : 1;
+            _context.Add(cliente);
         }
 
         public async Task UpdateAsync(Cliente cliente)
@@ -65,14 +63,15 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(cliente.IdCliente));
             }
 
-            var existingCliente = await _context.Set<Cliente>().FindAsync(cliente.IdCliente);
+            var existingCliente = _context.FirstOrDefault(c => c.IdCliente == cliente.IdCliente);
             if (existingCliente == null)
             {
                 throw new KeyNotFoundException("Cliente no encontrado");
             }
 
-            _context.Entry(existingCliente).CurrentValues.SetValues(cliente);
-            await _context.SaveChangesAsync();
+            existingCliente.Nombre = cliente.Nombre;
+            existingCliente.Telefono = cliente.Telefono;
+            existingCliente.Email = cliente.Email;
         }
 
         public async Task DeleteAsync(int id)
@@ -82,14 +81,13 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var cliente = await _context.Set<Cliente>().FindAsync(id);
+            var cliente = _context.FirstOrDefault(c => c.IdCliente == id);
             if (cliente == null)
             {
                 throw new KeyNotFoundException("Cliente no encontrado");
             }
 
-            _context.Set<Cliente>().Remove(cliente);
-            await _context.SaveChangesAsync();
+            _context.Remove(cliente);
         }
     }
 }

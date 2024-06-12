@@ -6,8 +6,7 @@ using Restaurant.Infraestructure.Context;
 
 namespace Restaurant.Infraestructure.Repositories
 {
-
-  public class PedidoRepository : IPedidoRepository
+    public class PedidoRepository : IPedidoRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -18,36 +17,74 @@ namespace Restaurant.Infraestructure.Repositories
 
         public async Task<IEnumerable<Pedido>> GetAllAsync()
         {
-            return await _context.Set<Pedido>()
-                .ToListAsync();
+            return await _context.Set<Pedido>().ToListAsync();
         }
 
         public async Task<Pedido> GetByIdAsync(int id)
         {
-            return await _context.Set<Pedido>()
-           .FirstOrDefaultAsync(p => p.IdPedido == id);
+            if (id <= 0)
+            {
+                throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
+            }
+
+            var pedido = await _context.Set<Pedido>().FirstOrDefaultAsync(p => p.IdPedido == id);
+
+            if (pedido == null)
+            {
+                throw new KeyNotFoundException("Pedido no encontrado");
+            }
+
+            return pedido;
         }
 
         public async Task AddAsync(Pedido pedido)
         {
+            if (pedido == null)
+            {
+                throw new ArgumentNullException(nameof(pedido), "El pedido no puede ser nulo");
+            }
+
             await _context.Set<Pedido>().AddAsync(pedido);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Pedido pedido)
         {
-            _context.Set<Pedido>().Update(pedido);
+            if (pedido == null)
+            {
+                throw new ArgumentNullException(nameof(pedido), "El pedido no puede ser nulo");
+            }
+
+            if (pedido.IdPedido <= 0)
+            {
+                throw new ArgumentException("El id debe ser un valor positivo", nameof(pedido.IdPedido));
+            }
+
+            var existingPedido = await _context.Set<Pedido>().FindAsync(pedido.IdPedido);
+            if (existingPedido == null)
+            {
+                throw new KeyNotFoundException("Pedido no encontrado");
+            }
+
+            _context.Entry(existingPedido).CurrentValues.SetValues(pedido);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var pedido = await _context.Set<Pedido>().FindAsync(id);
-            if (pedido != null)
+            if (id <= 0)
             {
-                _context.Pedidos.Remove(pedido);
-                await _context.SaveChangesAsync();
+                throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
+
+            var pedido = await _context.Set<Pedido>().FindAsync(id);
+            if (pedido == null)
+            {
+                throw new KeyNotFoundException("Pedido no encontrado");
+            }
+
+            _context.Pedidos.Remove(pedido);
+            await _context.SaveChangesAsync();
         }
     }
 }

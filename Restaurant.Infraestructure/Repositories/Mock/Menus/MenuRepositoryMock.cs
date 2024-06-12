@@ -1,23 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+
+using System.Threading.Tasks;
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
-using Restaurant.Infraestructure.Context;
 
-
-namespace Restaurant.Infraestructure.Repositories
+namespace Restaurant.Infraestructure.Repositories.Mock.Menus
 {
-    public class MenuRepository : IMenuRepository
+    public class MenuRepositoryMock : IMenuRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly List<Menu> _menus;
 
-        public MenuRepository(ApplicationDbContext context)
+        public MenuRepositoryMock()
         {
-            _context = context;
+            _menus = new List<Menu>
+            {
+                new Menu { IdPlato = 1, Nombre = "Plato1", Precio = 10.00m },
+                new Menu { IdPlato = 2, Nombre = "Plato2", Precio = 15.50m }
+            };
         }
 
         public async Task<IEnumerable<Menu>> GetAllAsync()
         {
-            return await _context.Set<Menu>().ToListAsync();
+            return await Task.Run(() => _menus.ToList());
         }
 
         public async Task<Menu> GetByIdAsync(int id)
@@ -27,7 +31,7 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var menu = await _context.Set<Menu>().FindAsync(id);
+            var menu = _menus.FirstOrDefault(m => m.IdPlato == id);
 
             if (menu == null)
             {
@@ -44,8 +48,12 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentNullException(nameof(menu), "El menú no puede ser nulo");
             }
 
-            await _context.Set<Menu>().AddAsync(menu);
-            await _context.SaveChangesAsync();
+            if (_menus.Any(m => m.IdPlato == menu.IdPlato))
+            {
+                throw new InvalidOperationException("Ya existe un menú con el mismo Id.");
+            }
+
+            _menus.Add(menu);
         }
 
         public async Task UpdateAsync(Menu menu)
@@ -60,14 +68,14 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(menu.IdPlato));
             }
 
-            var existingMenu = await _context.Set<Menu>().FindAsync(menu.IdPlato);
+            var existingMenu = _menus.FirstOrDefault(m => m.IdPlato == menu.IdPlato);
             if (existingMenu == null)
             {
                 throw new KeyNotFoundException("Menú no encontrado");
             }
 
-            _context.Entry(existingMenu).CurrentValues.SetValues(menu);
-            await _context.SaveChangesAsync();
+            existingMenu.Nombre = menu.Nombre;
+            existingMenu.Precio = menu.Precio;
         }
 
         public async Task DeleteAsync(int id)
@@ -77,14 +85,13 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var menu = await _context.Set<Menu>().FindAsync(id);
+            var menu = _menus.FirstOrDefault(m => m.IdPlato == id);
             if (menu == null)
             {
                 throw new KeyNotFoundException("Menú no encontrado");
             }
 
-            _context.Set<Menu>().Remove(menu);
-            await _context.SaveChangesAsync();
+            _menus.Remove(menu);
         }
     }
 }

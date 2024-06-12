@@ -1,23 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
-using Restaurant.Infraestructure.Context;
 
-
-namespace Restaurant.Infraestructure.Repositories
+namespace Restaurant.Infraestructure.Repositories.Mock.Empleados
 {
-    public class EmpleadoRepository : IEmpleadoRepository
+    public class EmpleadoRepositoryMock : IEmpleadoRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly List<Empleado> _empleados;
 
-        public EmpleadoRepository(ApplicationDbContext context)
+        public EmpleadoRepositoryMock()
         {
-            _context = context;
+            _empleados = new List<Empleado>
+            {
+                new Empleado { IdEmpleado = 1, Nombre = "Empleado1", Cargo = "Cargo1" },
+                new Empleado { IdEmpleado = 2, Nombre = "Empleado2", Cargo = "Cargo2" }
+            };
         }
 
         public async Task<IEnumerable<Empleado>> GetAllAsync()
         {
-            return await _context.Set<Empleado>().ToListAsync();
+            return await Task.Run(() => _empleados.ToList());
         }
 
         public async Task<Empleado> GetByIdAsync(int id)
@@ -27,7 +29,7 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var empleado = await _context.Set<Empleado>().FindAsync(id);
+            var empleado = _empleados.FirstOrDefault(e => e.IdEmpleado == id);
 
             if (empleado == null)
             {
@@ -44,8 +46,12 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentNullException(nameof(empleado), "El empleado no puede ser nulo");
             }
 
-            await _context.Set<Empleado>().AddAsync(empleado);
-            await _context.SaveChangesAsync();
+            if (_empleados.Any(e => e.IdEmpleado == empleado.IdEmpleado))
+            {
+                throw new InvalidOperationException("Ya existe un empleado con el mismo Id.");
+            }
+
+            _empleados.Add(empleado);
         }
 
         public async Task UpdateAsync(Empleado empleado)
@@ -60,14 +66,14 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(empleado.IdEmpleado));
             }
 
-            var existingEmpleado = await _context.Set<Empleado>().FindAsync(empleado.IdEmpleado);
+            var existingEmpleado = _empleados.FirstOrDefault(e => e.IdEmpleado == empleado.IdEmpleado);
             if (existingEmpleado == null)
             {
                 throw new KeyNotFoundException("Empleado no encontrado");
             }
 
-            _context.Entry(existingEmpleado).CurrentValues.SetValues(empleado);
-            await _context.SaveChangesAsync();
+            existingEmpleado.Nombre = empleado.Nombre;
+            existingEmpleado.Cargo = empleado.Cargo;
         }
 
         public async Task DeleteAsync(int id)
@@ -77,14 +83,13 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var empleado = await _context.Set<Empleado>().FindAsync(id);
+            var empleado = _empleados.FirstOrDefault(e => e.IdEmpleado == id);
             if (empleado == null)
             {
                 throw new KeyNotFoundException("Empleado no encontrado");
             }
 
-            _context.Set<Empleado>().Remove(empleado);
-            await _context.SaveChangesAsync();
+            _empleados.Remove(empleado);
         }
     }
 }

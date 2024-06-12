@@ -1,23 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
-using Restaurant.Infraestructure.Context;
 
-
-namespace Restaurant.Infraestructure.Repositories
+namespace Restaurant.Infraestructure.Repositories.Mock.DetallePedidos
 {
-    public class DetallePedidoRepository : IDetallePedidoRepository
+    public class DetallePedidoRepositoryMock : IDetallePedidoRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly List<DetallePedido> _detallePedidos;
 
-        public DetallePedidoRepository(ApplicationDbContext context)
+        public DetallePedidoRepositoryMock()
         {
-            _context = context;
+            _detallePedidos = new List<DetallePedido>();
         }
 
         public async Task<IEnumerable<DetallePedido>> GetAllAsync()
         {
-            return await _context.Set<DetallePedido>().ToListAsync();
+            return await Task.Run(() => _detallePedidos.ToList());
         }
 
         public async Task<DetallePedido> GetByIdAsync(int id)
@@ -27,7 +25,7 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var detallePedido = await _context.Set<DetallePedido>().FirstOrDefaultAsync(dp => dp.IdDetallePedido == id);
+            var detallePedido = _detallePedidos.FirstOrDefault(dp => dp.IdDetallePedido == id);
 
             if (detallePedido == null)
             {
@@ -44,8 +42,7 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentNullException(nameof(detallePedido), "El detalle de pedido no puede ser nulo");
             }
 
-            await _context.Set<DetallePedido>().AddAsync(detallePedido);
-            await _context.SaveChangesAsync();
+            _detallePedidos.Add(detallePedido);
         }
 
         public async Task UpdateAsync(DetallePedido detallePedido)
@@ -60,14 +57,16 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(detallePedido.IdDetallePedido));
             }
 
-            var existingDetallePedido = await _context.Set<DetallePedido>().FindAsync(detallePedido.IdDetallePedido);
+            var existingDetallePedido = _detallePedidos.FirstOrDefault(dp => dp.IdDetallePedido == detallePedido.IdDetallePedido);
             if (existingDetallePedido == null)
             {
                 throw new KeyNotFoundException("Detalle de Pedido no encontrado");
             }
 
-            _context.Entry(existingDetallePedido).CurrentValues.SetValues(detallePedido);
-            await _context.SaveChangesAsync();
+            existingDetallePedido.IdPedido = detallePedido.IdPedido;
+            existingDetallePedido.IdPlato = detallePedido.IdPlato;
+            existingDetallePedido.Cantidad = detallePedido.Cantidad;
+            existingDetallePedido.Subtotal = detallePedido.Subtotal;
         }
 
         public async Task DeleteAsync(int id)
@@ -77,14 +76,14 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var detallePedido = await _context.Set<DetallePedido>().FindAsync(id);
+            var detallePedido = _detallePedidos.FirstOrDefault(dp => dp.IdDetallePedido == id);
             if (detallePedido == null)
             {
                 throw new KeyNotFoundException("Detalle de Pedido no encontrado");
             }
 
-            _context.Set<DetallePedido>().Remove(detallePedido);
-            await _context.SaveChangesAsync();
+            _detallePedidos.Remove(detallePedido);
         }
+
     }
 }

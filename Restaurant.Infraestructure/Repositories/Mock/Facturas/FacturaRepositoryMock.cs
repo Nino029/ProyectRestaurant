@@ -1,23 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
-using Restaurant.Infraestructure.Context;
 
-
-namespace Restaurant.Infraestructure.Repositories
+namespace Restaurant.Infraestructure.Repositories.Mock.Facturas
 {
-    public class FacturaRepository : IFacturaRepository
+    public class FacturaRepositoryMock : IFacturaRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly List<Factura> _facturas;
 
-        public FacturaRepository(ApplicationDbContext context)
+        public FacturaRepositoryMock()
         {
-            _context = context;
+            _facturas = new List<Factura>
+    {
+        new Factura { IdFactura = 1, Total = 100.00m },
+        new Factura { IdFactura = 2, Total = 150.50m }
+    };
         }
 
         public async Task<IEnumerable<Factura>> GetAllAsync()
         {
-            return await _context.Set<Factura>().ToListAsync();
+            return await Task.Run(() => _facturas.ToList());
         }
 
         public async Task<Factura> GetByIdAsync(int id)
@@ -27,7 +29,7 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var factura = await _context.Set<Factura>().FindAsync(id);
+            var factura = _facturas.FirstOrDefault(f => f.IdFactura == id);
 
             if (factura == null)
             {
@@ -44,8 +46,12 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentNullException(nameof(factura), "La factura no puede ser nula");
             }
 
-            await _context.Set<Factura>().AddAsync(factura);
-            await _context.SaveChangesAsync();
+            if (_facturas.Any(f => f.IdFactura == factura.IdFactura))
+            {
+                throw new InvalidOperationException("Ya existe una factura con el mismo Id.");
+            }
+
+            _facturas.Add(factura);
         }
 
         public async Task UpdateAsync(Factura factura)
@@ -60,15 +66,16 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(factura.IdFactura));
             }
 
-            var existingFactura = await _context.Set<Factura>().FindAsync(factura.IdFactura);
+            var existingFactura = _facturas.FirstOrDefault(f => f.IdFactura == factura.IdFactura);
             if (existingFactura == null)
             {
                 throw new KeyNotFoundException("Factura no encontrada");
             }
 
-            _context.Entry(existingFactura).CurrentValues.SetValues(factura);
-            await _context.SaveChangesAsync();
+            existingFactura.IdFactura = factura.IdFactura; 
+            existingFactura.Total = factura.Total; 
         }
+
 
         public async Task DeleteAsync(int id)
         {
@@ -77,14 +84,13 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var factura = await _context.Set<Factura>().FindAsync(id);
+            var factura = _facturas.FirstOrDefault(f => f.IdFactura == id);
             if (factura == null)
             {
                 throw new KeyNotFoundException("Factura no encontrada");
             }
 
-            _context.Set<Factura>().Remove(factura);
-            await _context.SaveChangesAsync();
+            _facturas.Remove(factura);
         }
     }
 }
