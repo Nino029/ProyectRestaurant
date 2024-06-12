@@ -12,8 +12,7 @@ namespace Restaurant.Infraestructure.Repositories.Mock.Empleados
         {
             _empleados = new List<Empleado>
             {
-                new Empleado { IdEmpleado = 1, Nombre = "Empleado1", Cargo = "Cargo1" },
-                new Empleado { IdEmpleado = 2, Nombre = "Empleado2", Cargo = "Cargo2" }
+                
             };
         }
 

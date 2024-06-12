@@ -15,8 +15,7 @@ namespace Restaurant.Infraestructure.Repositories.Mock.Pedidos
         {
             _pedidos = new List<Pedido>
             {
-                new Pedido { IdPedido = 1, IdCliente = 1, IdMesa = 1, Fecha = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), Total = 100.00m },
-                new Pedido { IdPedido = 2, IdCliente = 2, IdMesa = 2, Fecha = DateOnly.FromDateTime(DateTime.Now), Total = 150.50m }
+                
             };
         }
 
