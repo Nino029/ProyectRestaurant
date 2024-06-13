@@ -1,10 +1,9 @@
 ﻿
 
-namespace Restaurant.Infraestructure.Models.Factura
+namespace Restaurant.Domain.Models.Factura
 {
-    public class UpdateFacturaModel
+    public  class ViewFacturaModel
     {
-
         public int IdFactura { get; set; }
         public DateTime Fecha { get; set; }
         public decimal Total { get; set; }

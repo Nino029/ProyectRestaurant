@@ -14,6 +14,7 @@ namespace Restaurant.Infraestructure.Extensions
          public static void ExtensionsRepository(this IServiceCollection services, IConfiguration configuration){
 
          services.AddTransient<IClienteRepository, ClienteRepository>();
+         services.AddScoped<ClienteRepository>();
          services.AddTransient<IMesaRepository, MesaRepository>();
          services.AddTransient<IEmpleadoRepository, EmpleadoRepository>();
          services.AddTransient<IMenuRepository, MenuRepository>();

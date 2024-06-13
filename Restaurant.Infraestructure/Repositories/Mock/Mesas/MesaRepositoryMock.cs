@@ -12,7 +12,8 @@ namespace Restaurant.Infraestructure.Repositories.Mock.Mesas
         {
             _mesas = new List<Mesa>
             {
-             
+                 new Mesa { IdMesa = 1, Capacidad = 4, Estado = "Disponible" },
+                new Mesa { IdMesa = 2, Capacidad = 6, Estado = "Ocupado" }
             };
         }
 

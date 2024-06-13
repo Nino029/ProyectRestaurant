@@ -12,7 +12,8 @@ namespace Restaurant.Infraestructure.Repositories.Mock.Facturas
         {
             _facturas = new List<Factura>
     {
-    
+        new Factura { IdFactura = 1, Total = 100.00m },
+        new Factura { IdFactura = 2, Total = 150.50m }
     };
         }
 

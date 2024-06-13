@@ -1,5 +1,4 @@
-﻿
-using Xunit;
+﻿using Xunit;
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Infraestructure.Repositories.Mock.Mesas;
