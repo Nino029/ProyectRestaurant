@@ -9,7 +9,7 @@ public partial class Pedido
 
     public int? IdMesa { get; set; }
 
-    public DateOnly? Fecha { get; set; }
+    public DateOnly? Fecha { get; set; } 
 
     public decimal? Total { get; set; }
 

@@ -2,10 +2,10 @@
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Domain.Models.Cliente;
-using Restaurant.Infraestructure.Context;
 using Restaurant.Infraestructure.Models.Cliente;
-using Restaurant.Infraestructure.Repositories;
-
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Restaurant.Web.Api.Controllers
 {
@@ -14,31 +14,31 @@ namespace Restaurant.Web.Api.Controllers
     public class ClienteController : ControllerBase
     {
         private readonly IClienteRepository _clienteRepository;
-        private readonly ApplicationDbContext _applicationDbContext;
 
-        public ClienteController(IClienteRepository clienteRepository, ApplicationDbContext applicationDbContext)
+        public ClienteController(IClienteRepository clienteRepository)
         {
             _clienteRepository = clienteRepository;
-            _applicationDbContext = applicationDbContext;
         }
 
         [HttpPost]
         public async Task<ActionResult<Cliente>> CreateCliente(SaveClienteModel model)
         {
-            Cliente cliente = new()
+            var cliente = new Cliente
             {
                 Nombre = model.Nombre,
                 Telefono = model.Telefono,
                 Email = model.Email
             };
 
-            await _clienteRepository.AddAsync(cliente);
-
-            var result = await _applicationDbContext.SaveChangesAsync() > 0;
-
-            if (!result) return BadRequest("No se agregó el cliente");
-
-            return Ok(cliente);
+            try
+            {
+                await _clienteRepository.AddAsync(cliente);
+                return Ok(cliente);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("No se pudo agregar el cliente");
+            }
         }
 
         [HttpGet]
@@ -51,50 +51,76 @@ namespace Restaurant.Web.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Cliente>> GetClienteById(int id)
         {
-            if (id <= 0) return BadRequest("El ID debe ser un valor positivo");
+            if (id <= 0)
+            {
+                return BadRequest("El ID debe ser un valor positivo");
+            }
 
-            var cliente = await _clienteRepository.GetByIdAsync(id);
-            if (cliente == null) return NotFound("Cliente no encontrado");
-
-            return Ok(cliente);
+            try
+            {
+                var cliente = await _clienteRepository.GetByIdAsync(id);
+                return Ok(cliente);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Cliente no encontrado");
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCliente(int id, UpdateClienteModel model)
         {
-            if (id <= 0) return BadRequest("El ID debe ser un valor positivo");
+            if (id <= 0)
+            {
+                return BadRequest("El ID debe ser un valor positivo");
+            }
 
             var cliente = await _clienteRepository.GetByIdAsync(id);
-            if (cliente == null) return NotFound("Cliente no encontrado");
+            if (cliente == null)
+            {
+                return NotFound("Cliente no encontrado");
+            }
 
             cliente.Nombre = model.Nombre;
             cliente.Telefono = model.Telefono;
             cliente.Email = model.Email;
 
-            await _clienteRepository.UpdateAsync(cliente);
-
-            var result = await _applicationDbContext.SaveChangesAsync() > 0;
-
-            if (!result) return BadRequest("No se pudo actualizar el cliente");
-
-            return NoContent();
+            try
+            {
+                await _clienteRepository.UpdateAsync(cliente);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Cliente no encontrado");
+            }
+            catch (Exception)
+            {
+                return BadRequest("No se pudo actualizar el cliente");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteCliente(int id)
         {
-            if (id <= 0) return BadRequest("El ID debe ser un valor positivo");
+            if (id <= 0)
+            {
+                return BadRequest("El ID debe ser un valor positivo");
+            }
 
-            var cliente = await _clienteRepository.GetByIdAsync(id);
-            if (cliente == null) return NotFound("Cliente no encontrado");
-
-            await _clienteRepository.DeleteAsync(id);
-
-            var result = await _applicationDbContext.SaveChangesAsync() > 0;
-
-            if (!result) return BadRequest("No se pudo eliminar el cliente");
-
-            return NoContent();
+            try
+            {
+                await _clienteRepository.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Cliente no encontrado");
+            }
+            catch (Exception)
+            {
+                return BadRequest("No se pudo eliminar el cliente");
+            }
         }
     }
 }

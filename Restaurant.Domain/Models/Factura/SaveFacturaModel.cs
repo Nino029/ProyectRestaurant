@@ -1,12 +1,14 @@
-﻿
+﻿using System.Text.Json;
+
 namespace Restaurant.Domain.Models.Factura
 {
     public class SaveFacturaModel
     {
-        
-        public DateTime Fecha { get; set; }
+
+        public int IdPedido { get; set; } 
         public decimal Total { get; set; }
-        public int IdPedido { get; set; }
+       
+        public DateTime Fecha { get; set; } 
 
     }
 }

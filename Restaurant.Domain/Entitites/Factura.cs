@@ -10,7 +10,7 @@ public partial class Factura
 
     public decimal? Total { get; set; }
 
-    public DateOnly? Fecha { get; set; }
+    public DateTime? Fecha { get; set; }
 
     public virtual Pedido? IdPedidoNavigation { get; set; }
 }

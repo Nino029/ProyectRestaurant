@@ -17,11 +17,14 @@ namespace Restaurant.Infraestructure.Extensions
          services.AddScoped<ClienteRepository>();
          services.AddTransient<IMesaRepository, MesaRepository>();
          services.AddTransient<IEmpleadoRepository, EmpleadoRepository>();
+         services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
          services.AddTransient<IMenuRepository, MenuRepository>();
          services.AddTransient<IPedidoRepository, PedidoRepository>();
          services.AddTransient<IDetallePedidoRepository, DetallePedidoRepository>();
+         services.AddScoped<IDetallePedidoRepository, DetallePedidoRepository>();
          services.AddTransient<IFacturaRepository, FacturaRepository>();
-  }
+         services.AddScoped<IFacturaRepository, FacturaRepository>();
+        }
 
     }
 }

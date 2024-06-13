@@ -6,8 +6,7 @@ namespace Restaurant.Domain.Models.DetallePedido
     {
 
         public int IdPedido { get; set; }
-        public string NombrePlato { get; set; }
-        public decimal Precio { get; set; }
+        public int IdPlato { get; set; }
         public int Cantidad { get; set; }
         public decimal Subtotal { get; set; }
     }
