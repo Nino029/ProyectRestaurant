@@ -1,10 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿
 
-namespace Restaurant.Infraestructure.Models.Menu
+namespace Restaurant.Domain.Models.Menu
 {
-    public class UpdateMenuModel
+    public class ViewMenuModel
     {
-        [JsonIgnore]
+
         public int IdPlato { get; set; }
         public string? Nombre { get; set; }
         public string? Descripcion { get; set; }

@@ -1,11 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿
 
-namespace Restaurant.Infraestructure.Models.Pedido
+namespace Restaurant.Domain.Models.Pedido
 {
-    public class UpdatePedidoModel
+    public class SavePedidoModel
     {
-        [JsonIgnore]
-        public int IdPedido { get; set; }
         public int? IdCliente { get; set; }
         public int? IdMesa { get; set; }
         public DateOnly? Fecha { get; set; }

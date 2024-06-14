@@ -1,10 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Restaurant.Infraestructure.Models.Mesa
+
+namespace Restaurant.Domain.Models.Mesa
 {
-    public class UpdateMesaModel
+   public class ViewMesaModel
     {
-        [JsonIgnore]
         public int IdMesa { get; set; }
         public int? Capacidad { get; set; }
         public string? Estado { get; set; }
