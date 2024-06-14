@@ -3,9 +3,7 @@ using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Domain.Models.Factura;
 using Restaurant.Infraestructure.Models.Factura;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace Restaurant.Web.Api.Controllers
 {
