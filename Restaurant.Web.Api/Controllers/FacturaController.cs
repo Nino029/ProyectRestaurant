@@ -62,23 +62,20 @@ namespace Restaurant.Web.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateFacturaModel model)
         {
-            if (id != model.IdFactura)
-            {
-                return BadRequest("ID de la factura no coincide");
-            }
-
-            var factura = await _facturaRepository.GetByIdAsync(id);
-            if (factura == null)
-            {
-                return NotFound("Factura no encontrada");
-            }
-
-            factura.IdPedido = model.IdPedido;
-            factura.Total = model.Total;
-            factura.Fecha = model.Fecha;
-
+            // Obtener la factura existente por ID
             try
             {
+                var factura = await _facturaRepository.GetByIdAsync(id);
+                if (factura == null)
+                {
+                    return NotFound("Factura no encontrada");
+                }
+
+                // Actualizar los valores permitidos
+                factura.IdPedido = model.IdPedido;
+                factura.Total = model.Total;
+                factura.Fecha = model.Fecha;
+
                 await _facturaRepository.UpdateAsync(factura);
                 return NoContent();
             }
