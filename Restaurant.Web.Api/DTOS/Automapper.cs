@@ -15,7 +15,7 @@ namespace Restaurant.Web.Api.DTOS
     {
         public AutomapperProfile()
         {
-            // Cliente mappings
+           
             CreateMap<SaveClienteModel, Cliente>();
             CreateMap<Cliente, ViewClienteModel>()
                .ForMember(dest => dest.IdCliente, opt => opt.MapFrom(src => src.IdCliente));
@@ -23,14 +23,14 @@ namespace Restaurant.Web.Api.DTOS
             CreateMap<DeleteClienteModel, Cliente>()
                .ForMember(dest => dest.IdCliente, opt => opt.MapFrom(src => src.IdCliente));
 
-            // Empleado mappings
+          
             CreateMap<SaveEmpleadoModel, Empleado>();
             CreateMap<UpdateEmpleadoModel, Empleado>()
                 .ReverseMap();
             CreateMap<Empleado, ViewEmpleadoModel>()
                .ForMember(dest => dest.IdEmpleado, opt => opt.MapFrom(src => src.IdEmpleado));
 
-            // Factura mappings
+            
             CreateMap<SaveFacturaModel, Factura>();
             CreateMap<Factura, ViewFacturaModel>()
                .ForMember(dest => dest.IdFactura, opt => opt.MapFrom(src => src.IdFactura));
@@ -38,7 +38,7 @@ namespace Restaurant.Web.Api.DTOS
             CreateMap<DeleteFacturaModel, Factura>()
                .ForMember(dest => dest.IdFactura, opt => opt.MapFrom(src => src.IdFactura));
 
-            // DetallePedido mappings
+          
             CreateMap<SaveDetallePedidoModel, DetallePedido>()
                .ForMember(dest => dest.IdDetallePedido, opt => opt.Ignore())
                .ForMember(dest => dest.IdPedidoNavigation, opt => opt.Ignore())
@@ -51,7 +51,7 @@ namespace Restaurant.Web.Api.DTOS
             CreateMap<DeleteDetallePedidoModel, DetallePedido>()
                .ForMember(dest => dest.IdDetallePedido, opt => opt.MapFrom(src => src.IdDetallePedido));
 
-            // Add mappings for other models as needed
+            
         }
     }
 }
