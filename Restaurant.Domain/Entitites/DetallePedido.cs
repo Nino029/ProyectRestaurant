@@ -4,7 +4,7 @@ namespace Restaurant.Domain.Entitites;
 
 public partial class DetallePedido
 {
-    public int IdDetallePedido { get; set; }
+    public int IdDetallePedido { get; set; } 
 
     public int? IdPedido { get; set; }
 

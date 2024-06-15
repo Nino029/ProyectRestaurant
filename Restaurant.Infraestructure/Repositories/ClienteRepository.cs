@@ -2,6 +2,7 @@
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Infraestructure.Context;
+using System.Runtime.Serialization;
 
 
 namespace Restaurant.Infraestructure.Repositories
@@ -68,7 +69,7 @@ namespace Restaurant.Infraestructure.Repositories
             var existingCliente = await _context.Set<Cliente>().FindAsync(cliente.IdCliente);
             if (existingCliente == null)
             {
-                throw new KeyNotFoundException("Cliente no encontrado");
+                throw new KeyNotFoundException("Cliente no encontrado"); 
             }
 
             _context.Entry(existingCliente).CurrentValues.SetValues(cliente);
@@ -85,7 +86,7 @@ namespace Restaurant.Infraestructure.Repositories
             var cliente = await _context.Set<Cliente>().FindAsync(id);
             if (cliente == null)
             {
-                throw new KeyNotFoundException("Cliente no encontrado");
+                throw new KeyNotFoundException("Cliente no encontrado"); 
             }
 
             _context.Set<Cliente>().Remove(cliente);

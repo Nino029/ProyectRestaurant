@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Domain.Models.Cliente;
 using Restaurant.Infraestructure.Models.Cliente;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Restaurant.Web.Api.DTOS;
+
 
 namespace Restaurant.Web.Api.Controllers
 {
@@ -14,21 +14,19 @@ namespace Restaurant.Web.Api.Controllers
     public class ClienteController : ControllerBase
     {
         private readonly IClienteRepository _clienteRepository;
+        private readonly IMapper _mapper;
 
-        public ClienteController(IClienteRepository clienteRepository)
+        public ClienteController(IClienteRepository clienteRepository, IMapper mapper)
         {
             _clienteRepository = clienteRepository;
+            _mapper = mapper;
+            
         }
 
         [HttpPost]
         public async Task<ActionResult<Cliente>> CreateCliente(SaveClienteModel model)
         {
-            var cliente = new Cliente
-            {
-                Nombre = model.Nombre,
-                Telefono = model.Telefono,
-                Email = model.Email
-            };
+            var cliente = _mapper.Map<Cliente>(model);
 
             try
             {
@@ -42,14 +40,15 @@ namespace Restaurant.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cliente>>> GetAllClientes()
+        public async Task<ActionResult<IEnumerable<ViewClienteModel>>> GetAllClientes()
         {
             var clientes = await _clienteRepository.GetAllAsync();
-            return Ok(clientes);
+            var clienteViewModels = _mapper.Map<IEnumerable<ViewClienteModel>>(clientes);
+            return Ok(clienteViewModels);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cliente>> GetClienteById(int id)
+        public async Task<ActionResult<ViewClienteModel>> GetClienteById(int id)
         {
             if (id <= 0)
             {
@@ -59,7 +58,13 @@ namespace Restaurant.Web.Api.Controllers
             try
             {
                 var cliente = await _clienteRepository.GetByIdAsync(id);
-                return Ok(cliente);
+                if (cliente == null)
+                {
+                    return NotFound("Cliente no encontrado");
+                }
+
+                var clienteViewModel = _mapper.Map<ViewClienteModel>(cliente);
+                return Ok(clienteViewModel);
             }
             catch (KeyNotFoundException)
             {
@@ -70,29 +75,24 @@ namespace Restaurant.Web.Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCliente(int id, UpdateClienteModel model)
         {
-            if (id <= 0)
-            {
-                return BadRequest("El ID debe ser un valor positivo");
-            }
-
-            var cliente = await _clienteRepository.GetByIdAsync(id);
-            if (cliente == null)
-            {
-                return NotFound("Cliente no encontrado");
-            }
-
-            cliente.Nombre = model.Nombre;
-            cliente.Telefono = model.Telefono;
-            cliente.Email = model.Email;
-
             try
             {
-                await _clienteRepository.UpdateAsync(cliente);
+                if (id <= 0)
+                {
+                    return BadRequest("El ID debe ser un valor positivo");
+                }
+
+                var cliente = await _clienteRepository.GetByIdAsync(id);
+                if (cliente == null) 
+                {
+                    return NotFound("Cliente no encontrado");
+                }
+                model.IdCliente = id;
+                
+              
+                await _clienteRepository.UpdateAsync(_mapper.Map<Cliente>(model));
+
                 return NoContent();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound("Cliente no encontrado");
             }
             catch (Exception)
             {

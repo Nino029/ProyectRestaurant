@@ -2,10 +2,8 @@
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Domain.Models.Empleado;
+using AutoMapper;
 using Restaurant.Infraestructure.Models.Empleado;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Restaurant.Web.Api.Controllers
 {
@@ -14,10 +12,12 @@ namespace Restaurant.Web.Api.Controllers
     public class EmpleadoController : ControllerBase
     {
         private readonly IEmpleadoRepository _empleadoRepository;
+        private readonly IMapper _mapper;
 
-        public EmpleadoController(IEmpleadoRepository empleadoRepository)
+        public EmpleadoController(IEmpleadoRepository empleadoRepository, IMapper mapper)
         {
-            _empleadoRepository = empleadoRepository;
+            _empleadoRepository = empleadoRepository ?? throw new ArgumentNullException(nameof(empleadoRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -44,11 +44,7 @@ namespace Restaurant.Web.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Empleado>> Create(SaveEmpleadoModel model)
         {
-            var empleado = new Empleado
-            {
-                Nombre = model.Nombre,
-                Cargo = model.Cargo
-            };
+            var empleado = _mapper.Map<Empleado>(model);
 
             try
             {
@@ -62,12 +58,9 @@ namespace Restaurant.Web.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateEmpleadoModel model)
+        public async Task<IActionResult> Update(int id, UpdateEmpleadoModel model) 
         {
-            if (id != model.IdEmpleado)
-            {
-                return BadRequest("ID del empleado no coincide");
-            }
+   
 
             var empleado = await _empleadoRepository.GetByIdAsync(id);
             if (empleado == null)
@@ -75,12 +68,11 @@ namespace Restaurant.Web.Api.Controllers
                 return NotFound("Empleado no encontrado");
             }
 
-            empleado.Nombre = model.Nombre;
-            empleado.Cargo = model.Cargo;
+            model.IdEmpleado = id; 
 
             try
             {
-                await _empleadoRepository.UpdateAsync(empleado);
+                await _empleadoRepository.UpdateAsync(_mapper.Map<Empleado>(model));
                 return NoContent();
             }
             catch (KeyNotFoundException)

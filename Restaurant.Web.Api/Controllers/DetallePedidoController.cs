@@ -3,9 +3,8 @@ using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Domain.Models.DetallePedido;
 using Restaurant.Infraestructure.Models.DetallePedido;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using AutoMapper;
+
 
 namespace Restaurant.Web.Api.Controllers
 {
@@ -14,10 +13,12 @@ namespace Restaurant.Web.Api.Controllers
     public class DetallePedidoController : ControllerBase
     {
         private readonly IDetallePedidoRepository _detallePedidoRepository;
+        private readonly IMapper _mapper;
 
-        public DetallePedidoController(IDetallePedidoRepository detallePedidoRepository)
+        public DetallePedidoController(IDetallePedidoRepository detallePedidoRepository, IMapper mapper)
         {
-            _detallePedidoRepository = detallePedidoRepository;
+            _detallePedidoRepository = detallePedidoRepository ?? throw new ArgumentNullException(nameof(detallePedidoRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -44,13 +45,7 @@ namespace Restaurant.Web.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<DetallePedido>> Create(SaveDetallePedidoModel model)
         {
-            var detalle = new DetallePedido
-            {
-                IdPedido = model.IdPedido,
-                IdPlato = model.IdPlato,
-                Cantidad = model.Cantidad,
-                Subtotal = model.Subtotal
-            };
+            var detalle = _mapper.Map<DetallePedido>(model);
 
             try
             {
@@ -64,24 +59,19 @@ namespace Restaurant.Web.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateDetallePedido model)
+        public async Task<IActionResult> Update(int id, UpdateDetallePedidoModel model)
         {
- 
-
             var detalle = await _detallePedidoRepository.GetByIdAsync(id);
             if (detalle == null)
             {
                 return NotFound("Detalle de pedido no encontrado");
             }
 
-            detalle.IdPedido = id;
-            detalle.IdPlato = model.IdPlato;
-            detalle.Cantidad = model.Cantidad;
-            detalle.Subtotal = model.Subtotal;
+            model.IdDetallePedido = id;
 
-            try
+            try 
             {
-                await _detallePedidoRepository.UpdateAsync(detalle);
+                await _detallePedidoRepository.UpdateAsync(_mapper.Map<DetallePedido>(model));
                 return NoContent();
             }
             catch (KeyNotFoundException)

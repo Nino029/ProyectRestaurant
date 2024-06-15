@@ -2,7 +2,7 @@
 
 namespace Restaurant.Infraestructure.Models.DetallePedido
 {
-    public class DeleteDetallePedido
+    public class DeleteDetallePedidoModel
     {
 
         public int IdDetallePedido { get; set; }

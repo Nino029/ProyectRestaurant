@@ -2,8 +2,8 @@
 using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Domain.Models.Factura;
+using AutoMapper;
 using Restaurant.Infraestructure.Models.Factura;
-
 
 namespace Restaurant.Web.Api.Controllers
 {
@@ -12,15 +12,17 @@ namespace Restaurant.Web.Api.Controllers
     public class FacturaController : ControllerBase
     {
         private readonly IFacturaRepository _facturaRepository;
+        private readonly IMapper _mapper;
 
-        public FacturaController(IFacturaRepository facturaRepository)
+        public FacturaController(IFacturaRepository facturaRepository, IMapper mapper)
         {
-            _facturaRepository = facturaRepository;
+            _facturaRepository = facturaRepository ?? throw new ArgumentNullException(nameof(facturaRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Factura>>> GetAll()
-           => Ok(await _facturaRepository.GetAllAsync());
+            => Ok(await _facturaRepository.GetAllAsync());
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Factura>> GetById(int id)
@@ -39,12 +41,7 @@ namespace Restaurant.Web.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Factura>> Create(SaveFacturaModel model)
         {
-            var factura = new Factura
-            {
-                IdPedido = model.IdPedido,
-                Total = model.Total,
-                Fecha = model.Fecha
-            };
+            var factura = _mapper.Map<Factura>(model);
 
             try
             {
@@ -60,21 +57,17 @@ namespace Restaurant.Web.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateFacturaModel model)
         {
-            // Obtener la factura existente por ID
+            var factura = await _facturaRepository.GetByIdAsync(id);
+            if (factura == null)
+            {
+                return NotFound("Factura no encontrada");
+            }
+
+            model.IdFactura = id;
+
             try
             {
-                var factura = await _facturaRepository.GetByIdAsync(id);
-                if (factura == null)
-                {
-                    return NotFound("Factura no encontrada");
-                }
-
-                // Actualizar los valores permitidos
-                factura.IdPedido = model.IdPedido;
-                factura.Total = model.Total;
-                factura.Fecha = model.Fecha;
-
-                await _facturaRepository.UpdateAsync(factura);
+                await _facturaRepository.UpdateAsync(_mapper.Map<Factura>(model));
                 return NoContent();
             }
             catch (KeyNotFoundException)

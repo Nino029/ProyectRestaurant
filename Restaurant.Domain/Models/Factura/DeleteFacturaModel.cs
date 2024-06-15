@@ -2,7 +2,7 @@
 
 namespace Restaurant.Infraestructure.Models.Factura
 {
-    public class DeleteDetalleFacturaModel
+    public class DeleteFacturaModel
     {
         public int IdFactura { get; set; }
     }

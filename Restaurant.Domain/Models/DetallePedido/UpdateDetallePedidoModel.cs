@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Restaurant.Infraestructure.Models.DetallePedido
 {
-    public class UpdateDetallePedido
+    public class UpdateDetallePedidoModel
     {
         [JsonIgnore]
         public int IdDetallePedido { get; set; }
