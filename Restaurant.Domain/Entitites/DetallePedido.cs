@@ -1,5 +1,7 @@
 ﻿
 
+using System.Text.Json.Serialization;
+
 namespace Restaurant.Domain.Entitites;
 
 public partial class DetallePedido
@@ -14,7 +16,9 @@ public partial class DetallePedido
 
     public decimal? Subtotal { get; set; }
 
+    [JsonIgnore]
     public virtual Pedido? IdPedidoNavigation { get; set; }
+    [JsonIgnore]
 
     public virtual Menu? IdPlatoNavigation { get; set; }
 }

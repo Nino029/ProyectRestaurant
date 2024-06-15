@@ -3,7 +3,6 @@ using Restaurant.Domain.Entitites;
 using Restaurant.Domain.Interfaces.IRepositories;
 using Restaurant.Infraestructure.Context;
 
-
 namespace Restaurant.Infraestructure.Repositories
 {
     public class DetallePedidoRepository : IDetallePedidoRepository
@@ -17,7 +16,10 @@ namespace Restaurant.Infraestructure.Repositories
 
         public async Task<IEnumerable<DetallePedido>> GetAllAsync()
         {
-            return await _context.Set<DetallePedido>().ToListAsync();
+            return await _context.Set<DetallePedido>()
+                                 .Include(dp => dp.IdPedidoNavigation)
+                                 .Include(dp => dp.IdPlatoNavigation)
+                                 .ToListAsync();
         }
 
         public async Task<DetallePedido> GetByIdAsync(int id)
@@ -27,7 +29,10 @@ namespace Restaurant.Infraestructure.Repositories
                 throw new ArgumentException("El id debe ser un valor positivo", nameof(id));
             }
 
-            var detallePedido = await _context.Set<DetallePedido>().FirstOrDefaultAsync(dp => dp.IdDetallePedido == id);
+            var detallePedido = await _context.Set<DetallePedido>()
+                                              .Include(dp => dp.IdPedidoNavigation)
+                                              .Include(dp => dp.IdPlatoNavigation)
+                                              .FirstOrDefaultAsync(dp => dp.IdDetallePedido == id);
 
             if (detallePedido == null)
             {
